@@ -5,7 +5,7 @@ close all
 data = dlmread('data.txt'); % read in data
 labels = dlmread('labels.txt'); % read in labels
 
-name = 'Ren Hao'; % REPLACE BY YOUR OWN NAME
+name = 'ju ren'; % REPLACE BY YOUR OWN NAME
 targetdigits = name2digits(name); % assign the four digits that should be used
 
 digitstoremove = setdiff(0:9,targetdigits); % the other 6 digits are removed from the data set.

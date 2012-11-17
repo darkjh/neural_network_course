@@ -1,0 +1,58 @@
+\documentclass[a4paper, 12pt]{article}
+
+% Options possibles : 10pt, 11pt, 12pt (taille de la fonte)
+% oneside, twoside (recto simple, recto-verso)
+% draft, final (stade de développement)
+
+\usepackage[utf8]{inputenc} % LaTeX, comprends les accents !
+\usepackage[T1]{fontenc} % Police contenant les caractères franÃ§ais
+\usepackage{geometry} % Définir les marges
+\usepackage[francais]{babel} % Placez ici une liste de langues, la
+% dernière étant la langue principale
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{multirow}
+
+\geometry{left=2.2cm,right=2.2cm,top=2.5cm,bottom=2.5cm}
+% \pagestyle{headings} % Pour mettre des entêtes avec les titres
+% des sections en haut de page
+%\include[dvips]{graphics}
+
+\title{Kohonen Map Project Report \\ \vspace{0.5cm} \large Unsupervised and Reinforcement Learning in Neural Networks}
+
+\author{Han JU, Hao Ren}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Learning rate and convergence}
+
+\section{Assignment method}
+In this step, we need a method to automatically assign the propre
+digit to each prototype that we found by executing the Kohonen map
+algorithm. An obvious idea is to look at the labels of the trainning
+data points that are close to the prototype, then decide the its label
+accroding to the majority in this surrounding. In fact, this task has
+a similarity with the $k$ nearest neighbor classification algorithm,
+which assigns a label to a data sample based on the majority of its $k$
+neighbors. So we decided to use the kNN method.
+
+Before we apply this method directly to the problem, however, we need
+to determine the parameter, $k$, of this algorithm. Intuitively, this
+parameter depends on our trainning data, which covers the hand
+writing samples of the four chosen digits. So we do firstly a cross
+validation on kNN models with distinct $k$ values (ranging from 3 to 300),
+which results in $k$ equals 5.
+
+Once the paramter is fixed, the application of kNN to the problem is fairly straightforward.
+
+\section{Comparing the results}
+
+\section{Conclusion}
+
+\end{document}
