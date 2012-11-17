@@ -1,4 +1,4 @@
-\documentclass[a4paper, 10pt]{article}
+\documentclass[a4paper, 12pt]{article}
 
 % Options possibles : 10pt, 11pt, 12pt (taille de la fonte)
 % oneside, twoside (recto simple, recto-verso)
@@ -30,20 +30,29 @@
 \begin{document}
 \maketitle
 
-% \tableofcontents % Table des matières
-
-% \listoffigures % Table des figures
-
-% \listoftables % Liste des tableaux
-
-%\part{Titre} % Commencer une partie...
-
 \section{Learning rate and convergence}
 
 \section{Assignment method}
+In this step, we need a method to automatically assign the propre
+digit to each prototype that we found by executing the Kohonen map
+algorithm. An obvious idea is to look at the labels of the trainning
+data points that are close to the prototype, then decide the its label
+accroding to the majority in this surrounding. In fact, this task has
+a similarity with the $k$ nearest neighbor classification algorithm,
+which assigns a label to a data sample based on the majority of its $k$
+neighbors. So we decided to use the kNN method.
+
+Before we apply this method directly to the problem, however, we need
+to determine the parameter, $k$, of this algorithm. Intuitively, this
+parameter depends on our trainning data, which covers the hand
+writing samples of the four chosen digits. So we do firstly a cross
+validation on kNN models with distinct $k$ values (ranging from 3 to 300),
+which results in $k$ equals 5.
+
+Once the paramter is fixed, the application of kNN to the problem is fairly straightforward.
 
 \section{Comparing the results}
 
-
+\section{Conclusion}
 
 \end{document}
