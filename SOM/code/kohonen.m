@@ -14,61 +14,60 @@ for i=1:6
     labels(labels==digitstoremove(i)) = [];
 end
 
-dim = 28*28; % dimension of the images
-range = 255; % input range of the images ([0, 255])
-[dy, dx]=size(data);
+% dim = 28*28; % dimension of the images
+% range = 255; % input range of the images ([0, 255])
+% [dy, dx]=size(data);
+% 
+% % set the size of the Kohonen map. In this case it will be 6 X 6
+% sizeK=6;
+% % sizeK=9;
+% %sizeK=12;
+% 
+% %set the width of the neighborhood via the width of the gaussian that
+% %describes it
+% sigma=1;
+% % sigma=3;
+% %sigma=5;
+% 
+% %initialise the centers randomly
+% centers=rand(sizeK^2,dim)*range;
+% 
+% % build a neighborhood matrix
+% neighbor = reshape(1:sizeK^2,sizeK,sizeK);
+% 
+% % YOU HAVE TO SET A LEARNING RATE HERE:
+% eta = 0.01;
+% 
+% %set the maximal iteration count
+% tmax=2000; % this might or might not work; use your own convergence criterion
+% 
+% %set the random order in which the datapoints should be presented
+% %iR=mod(randperm(tmax),dy)+1;
+% iR = randperm(tmax);
+% 
+% % for t=1:tmax
+% %     i=iR(t);
+% %     centers=som_step(centers,data(i,:),neighbor,eta,sigma);
+% % end
 
-% set the size of the Kohonen map. In this case it will be 6 X 6
-sizeK=6;
+vSizeK = [6 7 8];
+n = length(vSizeK);
 
-%set the width of the neighborhood via the width of the gaussian that
-%describes it
-sigma=1;
+vSigma = [1 3 5];
+m = length(vSigma);
 
-%initialise the centers randomly
-centers=rand(sizeK^2,dim)*range;
-
-% build a neighborhood matrix
-neighbor = reshape(1:sizeK^2,sizeK,sizeK);
-
-% YOU HAVE TO SET A LEARNING RATE HERE:
-eta = 0.005;
-
-%set the maximal iteration count
-tmax=5000; % this might or might not work; use your own convergence criterion
-
-%set the random order in which the datapoints should be presented
-iR=mod(randperm(tmax),dy)+1;
-
-% for t=1:tmax
-%     i=iR(t);
-%     centers=som_step(centers,data(i,:),neighbor,eta,sigma);
-% end
-
-counter = 0;
-while(1)  
-    temp = centers;
-    for t=1:tmax
-        i=iR(t);
-        centers=som_step(centers,data(i,:),neighbor,eta,sigma);
+res = zeros(n, m);
+for i = 1 : n
+    for j = 1: m
+        res(i,j) = somTrain(data, vSigma(j), labels, vSizeK(i));
     end
-    counter = counter + 1;
-    
-    display(counter)
-    display(norm(centers - temp)/norm(temp))
-    
-    if (norm(centers - temp)/norm(temp) < 0.001)
-        break;
-    end
- end;
+end
 
-%res1 = assigne(centers, data, labels, size(targetdigits,2))
-
-res = reshape(knnclassify(centers, data, labels, 500), 6, 6)'
+display(res);
 
 %% for visualization, you can use this:
-for i=1:sizeK^2
-    subplot(sizeK,sizeK,i);
-    imagesc(reshape(centers(i,:),28,28)'); colormap gray;
-    axis off
-end
+% for i=1:sizeK^2
+%     subplot(sizeK,sizeK,i);
+%     imagesc(reshape(centers(i,:),28,28)'); colormap gray;
+%     axis off
+% end
