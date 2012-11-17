@@ -1,0 +1,23 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+assign	assign.m	/^function res = assign(imgsRecons, imgsOrigin)$/;"	f
+centre	centre.m	/^function res = centre(x)$/;"	f
+evaluation	evaluation.m	/^function quality = evaluation(wNew, source, xw)$/;"	f
+findAllICs	findAllICs.m	/^function res = findAllICs(xw, W, g, gd, tol)$/;"	f
+findSingleIC	findSingleIC.m	/^function res = findSingleIC( xw, w, g, gd, tol)$/;"	f
+isConverge	isConverge.m	/^function res = isConverge(WNew, W, tol)$/;"	f
+matplotlib	mix.py	/^import matplotlib.image as mpimg$/;"	i
+miximages	mix.py	/^def miximages(N):$/;"	f
+miximages2	mix.py	/^def miximages2():$/;"	f
+miximages2	miximages2.m	/^function data=miximages2$/;"	f
+miximages8	mix.py	/^def miximages8():$/;"	f
+miximages8	miximages8.m	/^function data=miximages8$/;"	f
+mpimg	mix.py	/^import matplotlib.image as mpimg$/;"	i
+np	mix.py	/^import numpy as np$/;"	i
+visual	visual.m	/^function visual( imageVector, imageNum )$/;"	f
+whiten	mix.py	/^def whiten(data):$/;"	f
+whitendata	whitendata.m	/^function wData=whitendata(data)$/;"	f

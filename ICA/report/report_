@@ -1,0 +1,77 @@
+Ex1:
+
+1) Convergence measurement: norm(abs(wNew) - abs(w)) / norm(w) < tol, where tol represent the error tolerance which is very small, say, 1.0e-6
+	Initially, we use the convergence measurement like: 
+		norm(wNew - w) / norm(w) > tol, 
+	However, the problem is that, in some cases, the w vector will converge to two directions which is mutuelly reversed. They are both the acceptable direction of w vector, but the convergence measurement will never be satisfied. That's why we use the version with the "abs" to fix the ambiguous directions, as a result the problem mentioned before will be eliminated.
+	
+	To simplify the measurement, thanks to the normalization of w vector:
+		norm(abs(wNew) - abs(w)) < tol
+		
+	
+
+2) the function quality measurement : (use the three function to process the same whitened data points)
+	- the average correlation coeffient between the reconstructed image and the original one
+	- number of step of iteration
+	
+	A result is showed below:
+
+--> g1:	
+	counter =  6
+	quality =  0.997689371618089
+
+--> g2:
+	counter = 6
+ 	quality = 0.997633716285635
+
+--> g3:
+	counter = 7
+	quality = 0.998010445592914
+	
+	In the majority of the results, the counter is almost the same (between 5 and 7). Sometimes, the counter of g3 is bigger than the one of g2, sometimes not. But the average corr coef of g3 is always the biggest one. The difference between g1 and g2 is slight. In conclusion, g3 has the best qulity of the reconstruction among these three fucntions.
+
+3) The first image is sometimes color-reversed, sometimes not. If we find it's the first case, we will use the reversed w vector to reconstruct the image.that's the appropriate weights. In order to recover the second signal, we just use a vector which is orthogonal to the right w vector. Here, we have also two choices. In the same way, we decide the right orthogonal vector to recover the first signal.
+
+We should point out that the converged w vector might not exactly recover the original signal, since we can not decide the final w vector is the one which point to the postive(negation) direction of first(second) signal. But we can still recover the information in the orignal signals by trying the different sign of the w vector and its orthogonal vector
+
+Ex2:
+
+1) The role of symmetric orthogonaliztion is to make sure that the w vectors are orthogonal to each other. In fact, after every step of the factICA, if we dont orthogonalize the w vectors, they will lose the orthogonality, which lead to the fact that there are, maybe, servals w vectors point to the same picture. As a result, we will get servals identical images in the recovered images set.
+
+2) A set of reconstructed images.
+
+3) assign the restored signals to the corresponding sources
+
+Description:
+
+The idea is that by calculting the correlation coeffient between one restored image and the 8 original images, the original picture corresponding to the maxium of the 8 coeffient is the one should be assigned to the resstored image.
+
+We iterate the procedure for 8 times, thus, we finally get the assignemnt of all the recontructed pictrues.
+
+code: 
+=================================================================
+function res = assign(imgsRecons, imgsOrigin)
+    [N,~] = size(imgsRecons);
+    max = 0;
+    res = ones(N,1);
+    
+    % find the most correlated image to each w vector %
+    for i = 1:N
+        for j = 1: N
+            temp = corrcoef(imgsRecons(i,:), imgsOrigin(j,:)); 
+            % get the correlation coeffient between the i th restored image and the j th origin image
+            
+            if( abs(temp(1,2)) > max)
+                max = abs(temp(1,2));  % save the current max coef in the variable max
+                index = j; % save the index of the image which has the max coef with the restored one
+            end
+        end
+        res(i) = index; % assign the index of the most correlated image to the recovered image i
+        max = 0; % re-initialize max
+    end
+end
+
+the result according to the restored image sets in 2)
+
+     1     3     5     2     7     4     6     8
+
