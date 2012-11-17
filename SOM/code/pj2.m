@@ -1,0 +1,1 @@
+name2digits('Ren Hao')
