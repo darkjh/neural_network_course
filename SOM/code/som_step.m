@@ -23,10 +23,9 @@ sizeK = sqrt(size(centers,1));
 
 for j=1:sizeK^2 % update all units weighted by their distance to the winner
     [a1, b1]=find(neighbor==j); % find the coordinates of unit j
-    
     disc = exp(-((a-a1)^2+(b-b1)^2)/(2*sigma^2)); % calculate distance
-%     sigma = 0.9 * sigma;
+    
+    
     % update winner and neighbors according to the neighborhood function    
     centers(j,:)=centers(j,:)+disc*eta*(data-centers(j,:));
 end
-

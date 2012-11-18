@@ -50,10 +50,10 @@ end
 % %     centers=som_step(centers,data(i,:),neighbor,eta,sigma);
 % % end
 
-vSizeK = [6 7 8];
+vSizeK = [6];
 n = length(vSizeK);
 
-vSigma = [1 3 5];
+vSigma = [10];
 m = length(vSigma);
 
 res = zeros(n, m);

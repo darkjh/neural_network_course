@@ -19,26 +19,41 @@ tmax=2000;
 iR = randperm(tmax);
 
 counter = 0;
-while(1)  
+
+tau = 1000 / log(sigma);
+
+while(1)
+    
     temp = centers;
+    
     for t=1:tmax
         i=iR(t);
-        centers=som_step(centers,data(i,:),neighbor,eta,sigma);
+        sgm = sigma*exp(-(t+counter*tmax)/tau);
+        centers=som_step(centers,data(i,:),neighbor,eta,sgm);
     end
     counter = counter + 1;
     converge = norm(centers - temp)/norm(temp);
     display(counter)
     display(converge)
-        
+    display(sgm)
+      
     if (converge < 0.005)
         break;
     end
+    
  end;
 
 %res = assigne(centers, data, labels, size(targetdigits,2))
 assign = knnclassify(centers, data, labels, 5);
 reshape(assign, sizeK, sizeK)'
 error = errorRate(data, centers, assign, labels)
+
+for i=1:sizeK^2
+    subplot(sizeK,sizeK,i);
+    imagesc(reshape(centers(i,:),28,28)'); colormap gray;
+    axis off
+end
+
 
 end
 
