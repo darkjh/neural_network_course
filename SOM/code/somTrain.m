@@ -31,8 +31,8 @@ while(1)
     maxRound = tmax*(1-testPercentage);
     for t=1:maxRound 
         i=iR(t);
-%         sgm = sigma*exp(-(t+counter*maxRound)/tau);
-        sgm = sigma;
+        sgm = sigma*exp(-(t+counter*maxRound)/tau);
+%         sgm = sigma;
         centers=som_step(centers,data(i,:),neighbor,eta,sgm);
     end
     counter = counter + 1;
