@@ -53,7 +53,7 @@ end
 vSizeK = [6];
 n = length(vSizeK);
 
-vSigma = [10];
+vSigma = [3];
 m = length(vSigma);
 
 res = zeros(n, m);

@@ -14,9 +14,12 @@ neighbor = reshape(1:sizeK^2,sizeK,sizeK);
 % YOU HAVE TO SET A LEARNING RATE HERE:
 eta = 0.01;
 
-tmax=2000; 
+tmax=2000;
+testPercentage = 0.1;
 
 iR = randperm(tmax);
+iR1 = iR(1:tmax*testPercentage);
+iR2 = iR(tmax*testPercentage+1:2000);
 
 counter = 0;
 
@@ -25,10 +28,11 @@ tau = 1000 / log(sigma);
 while(1)
     
     temp = centers;
-    
-    for t=1:tmax
+    maxRound = tmax*(1-testPercentage);
+    for t=1:maxRound 
         i=iR(t);
-        sgm = sigma*exp(-(t+counter*tmax)/tau);
+%         sgm = sigma*exp(-(t+counter*maxRound)/tau);
+        sgm = sigma;
         centers=som_step(centers,data(i,:),neighbor,eta,sgm);
     end
     counter = counter + 1;
@@ -37,14 +41,15 @@ while(1)
     display(converge)
     display(sgm)
       
-    if (converge < 0.005)
+    if (converge < 0.01)
         break;
     end
     
  end;
 
 %res = assigne(centers, data, labels, size(targetdigits,2))
-assign = knnclassify(centers, data, labels, 5);
+assign = knnclassify(centers, data(iR1,:), labels(iR1), 5);
+% assign = knnclassify(centers, data, labels, 5);
 reshape(assign, sizeK, sizeK)'
 error = errorRate(data, centers, assign, labels)
 
