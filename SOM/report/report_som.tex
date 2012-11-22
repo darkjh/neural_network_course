@@ -43,8 +43,6 @@ We have tried several learning rate, the observations are show as below:
 
 The result is exactly the same to our intuition, small learning rates cause the algorithm to converge slower, while the larger ones help the algorithm to converge faster. However, we can not tell which one is better. As we know, the final solution of the small learning rate will be more stationary, but it might be stuck in local minima, while the large one might make the weights fail to converge.
 
-//figure
-
 For the three learning rate, the resulting figures have no big difference, as the one show above. What is important is that the three learning rates all leads to the convergence of the algorithm. So we can conclude that the bigger learning rate has no side-effect in this project. In addition, according to our observation, smaller learning rates doesn't improve our result. That means the quality of the result depends on other parameters which will be discussed in the later section. As a result, we choose eta = 0.01
 
 In the origin matlab code downloaded from the Moodle, there is a
@@ -66,7 +64,17 @@ successive iterations, we can conclude that the algorithm
 converges. Mathmatically, that is to say the norm of the difference of the two centrers matrix is sufficent small (relative to the norm of the previous one).
 
 \section{Visualization and prototypes}
-// figure
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.4]{../figure/sigma3eta001size6.jpg}
+\caption{Visulization of prototypes}
+\end{figure}
+
+Figure 1 is the Visulization of the prototypes in the map with
+standard parameters ($eta = 0.01$, $\sigma = 3$) for the digit set $3,
+4, 5, 9$. From the figure we can't tell much difference between the
+prototypes. We can say that under this setting, the resulting map is
+not of a high quality.
 
 \section{Assignment method}
 In this step, we need a method to automatically assign the propre
@@ -107,6 +115,12 @@ result map, we come up with a way to define the error rate:
 \item finally, we get the error rate: $\dfrac{\#error}{\#dataPoints}$
 \end{enumerate}
 
+For the test scheme, we firstly cut out dataset into training and test
+set with a $9:1$ ratio. Kohonen maps are constructed with the
+trainning data, then we apply them to classify data points in the test
+set to calculate the error rate mentioned earlier. In this way, the
+error rate can be regarded as a trustable measure of the map quality.
+
 We have tried $\sigma = 1, 3, 5$ and $sizeK = 6, 7, 8$, the result is showed as table-1:
 
 \begin{table}[!hbp]
@@ -115,19 +129,31 @@ We have tried $\sigma = 1, 3, 5$ and $sizeK = 6, 7, 8$, the result is showed as 
 \hline
  & $\sigma = 1$ & $\sigma = 3$ & $\sigma = 5$\\
 \hline
-$sizeK = 6$ &  0.2060 & 0.4455 & 0.7125\\
+$sizeK = 6$ &  0.4665 & 0.4790 & 0.5360\\
 \hline
-$sizeK = 7$ & 0.2295 & 0.3130 & 0.5295\\
+$sizeK = 8$ & 0.3925 & 0.5270 & 0.5505\\
 \hline
-$sizeK = 8$ & 0.1785 & 0.3005 & 0.4900\\
+$sizeK = 10$ & 0.2635 & 0.5165 & 0.5765\\
 \hline
 \end{tabular}
 \caption{error rate with different $\sigma$ and $sizeK$}
 \end{table}
 
-As a result, the optimal width does not depend on the size of the Kohomen map. For each size of the map, the smaller sigma is , the bette quality the result has. That means the optimal sigma is always the smaller one, no matter how the size of the map changes. With the augment of the size of the Kohonen map, the quaity is improved. An intuitive interpretion of this is that each prototype covers fewer and fewer data points, which makes the prototypes become more and more accurate during the convergence.
+As a result, the optimal width does not depend on the size of the
+Kohomen map. For different sizes of the map, the smaller sigma is ,
+the better quality the result has. That means the optimal sigma is
+always the smaller one, no matter how the size of the map
+changes. With the increase of the size of the Kohonen map, the quaity
+is improved. An intuitive interpretion of this is that each prototype
+covers fewer and fewer data points, which makes the prototype's
+position become more and more accurate during the convergence.
 
 In fact, the sigma controls the strength and range of the neighborhood effect of the points of the map. With a small sigma, the algorithm is essentially the competitive learning algorithm, with possible dead units, because the initialization might not be good enough. With big sigmas, all prototypes learn the same thing, i.e. the center of the points.
+
+For the map size, we've found that when width is small, it has a
+significant influence on the quality. However, when $\sigma$ is
+bigger, the quality is dominated by this parameter, changing de map
+size do not alter much the error rate.
 
 A propre size of the Kohonen map helps to prevent overifitting. Especially, in the unsupervised learning, it is better to fitting the data with a more or less regular grid that captures the essence of the underlying distribution than using a naive clustering algorithm with so many free parameters.
 
