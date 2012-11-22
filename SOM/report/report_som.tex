@@ -95,12 +95,26 @@ which results in $k$ equals 5.
 
 Once the parameter is fixed, the application of kNN to the problem is fairly straightforward.
 
-As a result, we have a matrix which contains the assigned digit to the corresponding prototype of the resulting figure matrix, as following:
+As a result, we have a matrix which contains the assigned digit to the
+corresponding prototype of the resulting figure matrix, as in figure 2.
 
-//matrix + //figure
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{0.5\textwidth}
+    \centering
+    \includegraphics[scale=0.4]{../figure/assign.jpg}
+  \end{minipage}%
+  \begin{minipage}[c]{0.5\textwidth}
+    \centering
+    \includegraphics[scale=0.8]{../figure/assignMatrix.jpg}
+  \end{minipage}
+  \caption{Prototypes and assigned digits}
+\end{figure}
 
 \section{$\sigma$ and map size}
 In this section we will discuss the role of the width of the neighborhood function and the size of the Kohomen map.
+
+\subsection{Constant $\sigma$ and map size}
 
 With different $\sigma$ and size of map, we will get different
 resulting matrix. In order to descirbe and compare the qualty of the
@@ -156,6 +170,45 @@ bigger, the quality is dominated by this parameter, changing de map
 size do not alter much the error rate.
 
 A propre size of the Kohonen map helps to prevent overifitting. Especially, in the unsupervised learning, it is better to fitting the data with a more or less regular grid that captures the essence of the underlying distribution than using a naive clustering algorithm with so many free parameters.
+
+\subsection{Variable $\sigma$}
+
+Finally, we adopt another approach that is to decrease the
+neighborhood width parameter with iterations.
+
+We decrease this parameter with following scheme:
+
+\begin{equation}
+  \sigma (n) = \sigma _0 \, exp(-\frac{n}{\tau _1}) \qquad n = 0, 1, 2 ...
+\end{equation}
+
+moreover, we have
+
+\begin{equation}
+  \tau _1 = \frac{1000}{log \, \sigma _0}
+\end{equation}
+
+We fixed the initial width to a large value, say $10$, and the result
+map is with very high quality even with a simple visual check. An
+interesting point is that if the initial value is not big enough,
+we'll have some badly-fitted prototype in the result map. This problem
+is probably due to the fact that the neighborhood of the winning
+neuron is decreasing with the runtime of the algorithm and if the
+initial value is not big enough, some unlucky prototype of the map may
+not be updated properly.
+
+\begin{minipage}[c]{0.5\textwidth}
+  \begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.4]{../figure/assign.jpg}
+  \end{figure}
+  \end{minipage}%
+  \begin{minipage}[c]{0.5\textwidth}
+    \begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.8]{../figure/assignMatrix.jpg}
+    \end{figure}
+  \end{minipage}
 
 \section{Conclusion}
 
