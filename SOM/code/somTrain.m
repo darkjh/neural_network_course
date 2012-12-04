@@ -18,8 +18,8 @@ tmax=2000;
 testPercentage = 0.1;
 
 iR = randperm(tmax);
-iR1 = iR(1:tmax*testPercentage);
-iR2 = iR(tmax*testPercentage+1:2000);
+iR1 = iR(1:tmax*testPercentage); %% test
+iR2 = iR(tmax*testPercentage+1:2000); %% train
 
 counter = 0;
 
@@ -30,7 +30,7 @@ while(1)
     temp = centers;
     maxRound = tmax*(1-testPercentage);
     for t=1:maxRound 
-        i=iR(t);
+        i=iR2(t);
         sgm = sigma*exp(-(t+counter*maxRound)/tau);
 %         sgm = sigma;
         centers=som_step(centers,data(i,:),neighbor,eta,sgm);
@@ -51,7 +51,7 @@ while(1)
 assign = knnclassify(centers, data(iR1,:), labels(iR1), 5);
 % assign = knnclassify(centers, data, labels, 5);
 reshape(assign, sizeK, sizeK)'
-error = errorRate(data, centers, assign, labels)
+error = errorRate(data(iR1,:), centers, assign, labels(iR1))
 
 for i=1:sizeK^2
     subplot(sizeK,sizeK,i);
