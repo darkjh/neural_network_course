@@ -1,24 +1,24 @@
-from pylab import *                                                                                                  
+from pylab import *
 import numpy
 from time import sleep
 
 class Gridworld:
     """
-    A class that implements a quadratic NxN gridworld. 
-    
+    A class that implements a quadratic NxN gridworld.
+
     Methods:
-    
+
     learn(N_trials=100)  : Run 'N_trials' trials. A trial is finished, when the agent reaches the reward location.
     visualize_trial()  : Run a single trial with graphical output.
     reset()            : Make the agent forget everything he has learned.
     plot_Q()           : Plot of the Q-values .
-    learning_curve()   : Plot the time it takes the agent to reach the target as a function of trial number. 
+    learning_curve()   : Plot the time it takes the agent to reach the target as a function of trial number.
     navigation_map()     : Plot the movement direction with the highest Q-value for all positions.
-    """    
-        
+    """
+
     def __init__(self,N,reward_position=(0,0),obstacle=False, lambda_eligibility=0.):
         """
-        Creates a quadratic NxN gridworld. 
+        Creates a quadratic NxN gridworld.
 
         Mandatory argument:
         N: size of the gridworld
@@ -26,13 +26,13 @@ class Gridworld:
         Optional arguments:
         reward_position = (x_coordinate,y_coordinate): the reward location
         obstacle = True:  Add a wall to the gridworld.
-        """    
-        
+        """
+
         # gridworld size
         self.N = N
 
         # reward location
-        self.reward_position = reward_position        
+        self.reward_position = reward_position
 
         # reward administered t the target location and when
         # bumping into walls
@@ -42,7 +42,7 @@ class Gridworld:
         # probability at which the agent chooses a random
         # action. This makes sure the agent explores the grid.
         self.epsilon = 0.5
-                                                                                                  
+
         # learning rate
         self.eta = 0.1
 
@@ -55,7 +55,7 @@ class Gridworld:
         # default is 0., which corresponds to no eligibility
         # trace at all.
         self.lambda_eligibility = lambda_eligibility
-    
+
         # is there an obstacle in the room?
         self.obstacle = obstacle
 
@@ -64,7 +64,7 @@ class Gridworld:
 
     def run(self,N_trials=10,N_runs=1):
         self.latencies = zeros(N_trials)
-        
+
         for run in range(N_runs):
             self._init_run()
             latencies = self._learn_run(N_trials=N_trials)
@@ -78,7 +78,7 @@ class Gridworld:
                 green - the reward position
 
         Note that for the simulation, exploration is reduced -> self.epsilon=0.1
-    
+
         """
         # store the old exploration/exploitation parameter
         epsilon = self.epsilon
@@ -120,18 +120,18 @@ class Gridworld:
         """
         self.x_direction = numpy.zeros((self.N,self.N))
         self.y_direction = numpy.zeros((self.N,self.N))
-        
+
         self.actions = argmax(self.Q[:,:,:],axis=2)
         self.y_direction[self.actions==0] = 1.
         self.y_direction[self.actions==1] = -1.
         self.y_direction[self.actions==2] = 0.
         self.y_direction[self.actions==3] = 0.
-        
+
         self.x_direction[self.actions==0] = 0.
         self.x_direction[self.actions==1] = 0.
         self.x_direction[self.actions==2] = 1.
         self.x_direction[self.actions==3] = -1.
-        
+
         figure()
         quiver(self.x_direction,self.y_direction)
         axis([-0.5, self.N - 0.5, -0.5, self.N - 0.5])
@@ -139,8 +139,8 @@ class Gridworld:
     def reset(self):
         """
         Reset the Q-values (and the latency_list).
-        
-        Instant amnesia -  the agent forgets everything he has learned before    
+
+        Instant amnesia -  the agent forgets everything he has learned before
         """
         self.Q = numpy.random.rand(self.N,self.N,4)
         self.latency_list = []
@@ -148,7 +148,7 @@ class Gridworld:
     def plot_Q(self):
         """
         Plot the dependence of the Q-values on position.
-        The figure consists of 4 subgraphs, each of which shows the Q-values 
+        The figure consists of 4 subgraphs, each of which shows the Q-values
         colorcoded for one of the actions.
         """
         figure()
@@ -163,16 +163,16 @@ class Gridworld:
                 title('Right')
             else:
                 title('Left')
-    
+
             colorbar()
         draw()
-    
+
     ###############################################################################################
     # The remainder of methods is for internal use and only relevant to those of you
     # that are interested in the implementation details
     ###############################################################################################
-        
-    
+
+
     def _init_run(self):
         """
         Initialize the Q-values, eligibility trace, position etc.
@@ -180,7 +180,7 @@ class Gridworld:
         # initialize the Q-values and the eligibility trace
         self.Q = 0.01 * numpy.random.rand(self.N,self.N,4) + 0.1
         self.e = numpy.zeros((self.N,self.N,4))
-        
+
         # list that contains the times it took the agent to reach the target for all trials
         # serves to track the progress of learning
         self.latency_list = []
@@ -192,15 +192,15 @@ class Gridworld:
 
     def _learn_run(self,N_trials=10):
         """
-        Run a learning period consisting of N_trials trials. 
-        
+        Run a learning period consisting of N_trials trials.
+
         Options:
         N_trials :     Number of trials
 
         Note: The Q-values are not reset. Therefore, running this routine
         several times will continue the learning process. If you want to run
         a completely new simulation, call reset() before running it.
-        
+
         """
         for trial in range(N_trials):
             # run a trial and store the time it takes to the target
@@ -223,23 +223,23 @@ class Gridworld:
             self.y_position = numpy.random.randint(self.N)
             if not self._is_wall(self.x_position,self.y_position):
                 break
-        
+
         # initialize the latency (time to reach the target) for this trial
         latency = 0.
 
         # start the visualization, if asked for
         if visualize:
-            self._init_visualization()    
-            
+            self._init_visualization()
+
         # run the trial
         self._choose_action()
         while not self._arrived():
             self._update_state()
-            self._choose_action()    
+            self._choose_action()
             self._update_Q()
             if visualize:
                 self._visualize_current_state()
-        
+
             latency = latency + 1
 
         if visualize:
@@ -253,7 +253,7 @@ class Gridworld:
         # update the eligibility trace
         self.e = self.lambda_eligibility * self.e
         self.e[self.x_position_old, self.y_position_old,self.action_old] += 1.
-        
+
         # update the Q-values
         if self.action_old != None:
             self.Q +=     \
@@ -262,10 +262,10 @@ class Gridworld:
                 - ( self.Q[self.x_position_old,self.y_position_old,self.action_old] \
                 - self.gamma * self.Q[self.x_position, self.y_position, self.action] )  )
 
-    def _choose_action(self):    
+    def _choose_action(self):
         """
         Choose the next action based on the current estimate of the Q-values.
-        The parameter epsilon determines, how often agent chooses the action 
+        The parameter epsilon determines, how often agent chooses the action
         with the highest Q-value (probability 1-epsilon). In the rest of the cases
         a random action is chosen.
         """
@@ -273,8 +273,8 @@ class Gridworld:
         if numpy.random.rand() < self.epsilon:
             self.action = numpy.random.randint(4)
         else:
-            self.action = argmax(self.Q[self.x_position,self.y_position,:])    
-    
+            self.action = argmax(self.Q[self.x_position,self.y_position,:])
+
     def _arrived(self):
         """
         Check if the agent has arrived.
@@ -283,7 +283,7 @@ class Gridworld:
 
     def _reward(self):
         """
-        Evaluates how much reward should be administered when performing the 
+        Evaluates how much reward should be administered when performing the
         chosen action at the current location
         """
         if self._arrived():
@@ -296,12 +296,12 @@ class Gridworld:
 
     def _update_state(self):
         """
-        Update the state according to the old state and the current action.    
+        Update the state according to the old state and the current action.
         """
         # remember the old position of the agent
         self.x_position_old = self.x_position
         self.y_position_old = self.y_position
-        
+
         # update the agents position according to the action
         # move to the down?
         if self.action == 0:
@@ -317,7 +317,7 @@ class Gridworld:
             self.y_position -= 1
         else:
             print "There must be a bug. This is not a valid action!"
-                        
+
         # check if the agent has bumped into a wall.
         if self._is_wall():
             self.x_position = self.x_position_old
@@ -326,10 +326,10 @@ class Gridworld:
         else:
             self._wall_touch = False
 
-    def _is_wall(self,x_position=None,y_position=None):    
+    def _is_wall(self,x_position=None,y_position=None):
         """
         This function returns, if the given position is within an obstacle
-        If you want to put the obstacle somewhere else, this is what you have 
+        If you want to put the obstacle somewhere else, this is what you have
         to modify. The default is a wall that starts in the middle of the room
         and ends at the right wall.
 
@@ -349,11 +349,11 @@ class Gridworld:
                 return True
 
         # if none of the above is the case, this position is not a wall
-        return False 
-            
+        return False
+
     def _visualize_current_state(self):
         """
-        Show the gridworld. The squares are colored in 
+        Show the gridworld. The squares are colored in
         red - the position of the agent - turns yellow when reaching the target or running into a wall
         blue - walls
         green - reward
@@ -365,7 +365,7 @@ class Gridworld:
         self._display[self.x_position,self.y_position,0] = 1
         if self._wall_touch:
             self._display[self.x_position,self.y_position,1] = 1
-            
+
         # set the reward locations
         self._display[self.reward_position[0],self.reward_position[1],1] = 1
 
@@ -374,14 +374,16 @@ class Gridworld:
         #close()
         #imshow(self._display,interpolation='nearest',origin='lower')
         #show()
-        
+
         draw()
-        
+
         # and wait a little while to control the speed of the presentation
         sleep(0.2)
-        
+
     def _init_visualization(self):
-        
+
+        # turn on interactive mode
+        ion()
         # create the figure
         figure()
         # initialize the content of the figure (RGB at each position)
@@ -390,14 +392,14 @@ class Gridworld:
         # position of the agent
         self._display[self.x_position,self.y_position,0] = 1
         self._display[self.reward_position[0],self.reward_position[1],1] = 1
-        
+
         for x in range(self.N):
             for y in range(self.N):
                 if self._is_wall(x_position=x,y_position=y):
                     self._display[x,y,2] = 1.
 
-                self._visualization = imshow(self._display,interpolation='nearest',origin='lower')
-        
+        self._visualization = imshow(self._display,interpolation='nearest',origin='lower')
+
     def _close_visualization(self):
         print "Press <return> to proceed..."
         raw_input()
