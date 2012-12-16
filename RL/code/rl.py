@@ -293,19 +293,19 @@ class RL:
         a random action is chosen.
         """
         self.action_old = self.action
+        # calculate Q value for each action
+        self.Q_old = self.Q
+        self.Q = zeros(8)
+        for a in range(8):
+            sum = 0.0
+            for x in range(self.N):
+                for y in range(self.N):
+                    sum += self._basis_function(self._to_position(x), self._to_position(y)) * self.w[x, y, a]
+            self.Q[a] = sum
+
         if random.rand() < self.epsilon:
             self.action = random.randint(8)
         else:
-            # calculate Q value for each action
-            self.Q_old = self.Q
-            self.Q = zeros(8)
-            for a in range(8):
-                sum = 0.0
-                for x in range(self.N):
-                    for y in range(self.N):
-                        sum += self._basis_function(self._to_position(x), self._to_position(y)) * self.w[x, y, a]
-                self.Q[a] = sum
-
             self.action = argmax(self.Q[:])
 
     def _arrived(self):
