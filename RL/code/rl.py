@@ -38,8 +38,8 @@ class RL:
 
         # reward administered t the target location and when
         # bumping into walls
-        self.reward_at_target = 10
-        self.reward_at_wall   = -2
+        self.reward_at_target = 10.0
+        self.reward_at_wall   = -2.0
 
         # probability at which the agent chooses a random
         # action. This makes sure the agent explores the grid.
@@ -73,7 +73,6 @@ class RL:
         for run in range(N_runs):
             self._init_run()
             latencies = self._learn_run(N_trials=N_trials)
-            print "Step: " + str(latencies)
             self.latencies += latencies/N_runs
 
     def visualize_trial(self):
@@ -187,8 +186,7 @@ class RL:
             x = x_pos
             y = y_pos
 
-        return exp(-(power(j_x - x, 2) + power(j_y - y, 2)) / (2 * power(self.sigma, 2)))
-
+        return exp(-((j_x - x)**2 + (j_y - y)**2) / (2 * self.sigma**2))
 
 
     def _init_run(self):
@@ -198,7 +196,7 @@ class RL:
         # initialize the Q-values and the eligibility trace
         self.Q = zeros(8)
         self.Q_old = None
-        self.w = zeros((self.N, self.N, 8))
+        self.w = 0.01 * random.rand(self.N, self.N, 8) + 0.1
         self.e = zeros((self.N, self.N, 8))
 
         # list that contains the times it took the agent to reach the target for all trials
@@ -284,7 +282,7 @@ class RL:
         # update the W_j,a
         if self.action_old != None and self.Q_old != None:
             TD = self._reward() + self.gamma*self.Q[self.action] - self.Q_old[self.action_old]
-            self.w += self.eta * TD * self.e
+            self.w[:, :, self.action_old] += self.eta * TD * self.e[:, :, self.action_old]
 
 
     def _choose_action(self):
@@ -338,7 +336,6 @@ class RL:
         self.y_pos_old = self.y_pos
 
         # update the agents position according to the action
-        # move to the down?
         if self.action in range(8):
             self.x_pos = self.x_pos_old + self.step_length * cos(2*pi*self.action/8)
             self.y_pos = self.y_pos_old + self.step_length * sin(2*pi*self.action/8)
@@ -380,19 +377,6 @@ class RL:
         blue - walls
         green - reward
         """
-
-        # set the agents color
-        # self._display[self.x_position_old,self.y_position_old,0] = 0
-        # self._display[self.x_position_old,self.y_position_old,1] = 0
-        # self._display[self.x_position,self.y_position,0] = 1
-        # if self._wall_touch:
-        #     self._display[self.x_position,self.y_position,1] = 1
-
-        # set the reward locations
-        # self._display[self.reward_position[0],self.reward_position[1],1] = 1
-
-        # update the figure
-        # self._visualization.set_data(self._display)
         self.plot.set_xdata(self.x_pos)
         self.plot.set_ydata(self.y_pos)
 
