@@ -61,6 +61,9 @@ class RL:
         # sigma param for gaussian basis function
         self.sigma = 0.05
 
+        # max iteration
+        self.iter_max = 10000
+
         # initialize the Q-values etc.
         self._init_run()
 
@@ -70,6 +73,7 @@ class RL:
         for run in range(N_runs):
             self._init_run()
             latencies = self._learn_run(N_trials=N_trials)
+            print "Step: " + str(latencies)
             self.latencies += latencies/N_runs
 
     def visualize_trial(self):
@@ -82,17 +86,9 @@ class RL:
         Note that for the simulation, exploration is reduced -> self.epsilon=0.1
 
         """
-        # store the old exploration/exploitation parameter
-        epsilon = self.epsilon
-
-        # favor exploitation, i.e. use the action with the
-        # highest Q-value most of the time
-        self.epsilon = 0.1
-
-        self._run_trial(visualize=True)
-
-        # restore the old exploration/exploitation factor
-        self.epsilon = epsilon
+        for run in range(5):
+            l = self._run_trial(visualize=True)
+            print "step: " + str(l)
 
     def learning_curve(self,log=False,filter=1.):
         """
@@ -174,17 +170,26 @@ class RL:
     # that are interested in the implementation details
     ###############################################################################################
 
-    def _to_position(pos):
+    def _to_position(self, pos):
         """
         Convert the index of input neuron into absolute coordinate on state space
         """
         return pos / 19
 
-    def _basis_function(j_x, j_y):
+    def _basis_function(self, j_x, j_y, x_pos=None, y_pos=None):
         """
         Gaussian basis function, used to code the 2-D state space
         """
-        return exp(-(power(j_x - self.x_pos, 2) + power(j_y - self.y_pos, 2)) / (2 * power(self.sigma, 2)))
+        if x_pos == None and y_pos == None:
+            x = self.x_pos
+            y = self.y_pos
+        else:
+            x = x_pos
+            y = y_pos
+
+        return exp(-(power(j_x - x, 2) + power(j_y - y, 2)) / (2 * power(self.sigma, 2)))
+
+
 
     def _init_run(self):
         """
@@ -192,6 +197,7 @@ class RL:
         """
         # initialize the Q-values and the eligibility trace
         self.Q = zeros(8)
+        self.Q_old = None
         self.w = zeros((self.N, self.N, 8))
         self.e = zeros((self.N, self.N, 8))
 
@@ -253,9 +259,14 @@ class RL:
                 self._visualize_current_state()
 
             latency = latency + 1
+            if latency % 200 == 0:
+                print str(latency)
+            if latency >= self.iter_max:
+                break
 
         if visualize:
             self._close_visualization()
+
         return latency
 
     def _update_W(self):
@@ -264,19 +275,15 @@ class RL:
         """
         # update the eligibility trace
         self.e = self.lambda_eligibility * self.e
-        self.e[self.x_pos_old, self.y_pos_old, self.action_old] += _basis_function()
-
-        # update the Q-values
-        # if self.action_old != None:
-        #     self.Q +=     \
-        #         self.eta * self.e *\
-        #         (self._reward()  \
-        #         - ( self.Q[self.x_position_old,self.y_position_old,self.action_old] \
-        #         - self.gamma * self.Q[self.x_position, self.y_position, self.action] )  )
+        for i in range(self.N):
+            for j in range(self.N):
+                self.e[i, j, self.action_old] += \
+                  self._basis_function(self._to_position(i), self._to_position(j), \
+                                  self.x_pos_old, self.y_pos_old)
 
         # update the W_j,a
-        if self.action_old != None:
-            TD = sefl._reward() + sefl.gamma*self.Q[self.action] - self.Q_old[self.action_old]
+        if self.action_old != None and self.Q_old != None:
+            TD = self._reward() + self.gamma*self.Q[self.action] - self.Q_old[self.action_old]
             self.w += self.eta * TD * self.e
 
 
@@ -298,7 +305,7 @@ class RL:
                 sum = 0.0
                 for x in range(self.N):
                     for y in range(self.N):
-                        sum += _basis_function(_to_position(x), _to_position(y)) * self.w[x, y, a]
+                        sum += self._basis_function(self._to_position(x), self._to_position(y)) * self.w[x, y, a]
                 self.Q[a] = sum
 
             self.action = argmax(self.Q[:])
@@ -375,45 +382,38 @@ class RL:
         """
 
         # set the agents color
-        self._display[self.x_position_old,self.y_position_old,0] = 0
-        self._display[self.x_position_old,self.y_position_old,1] = 0
-        self._display[self.x_position,self.y_position,0] = 1
-        if self._wall_touch:
-            self._display[self.x_position,self.y_position,1] = 1
+        # self._display[self.x_position_old,self.y_position_old,0] = 0
+        # self._display[self.x_position_old,self.y_position_old,1] = 0
+        # self._display[self.x_position,self.y_position,0] = 1
+        # if self._wall_touch:
+        #     self._display[self.x_position,self.y_position,1] = 1
 
         # set the reward locations
-        self._display[self.reward_position[0],self.reward_position[1],1] = 1
+        # self._display[self.reward_position[0],self.reward_position[1],1] = 1
 
         # update the figure
-        self._visualization.set_data(self._display)
-        #close()
-        #imshow(self._display,interpolation='nearest',origin='lower')
-        #show()
+        # self._visualization.set_data(self._display)
+        self.plot.set_xdata(self.x_pos)
+        self.plot.set_ydata(self.y_pos)
 
         draw()
 
         # and wait a little while to control the speed of the presentation
-        sleep(0.2)
+        sleep(0.01)
 
     def _init_visualization(self):
 
         # turn on interactive mode
         ion()
-        # create the figure
-        figure()
-        # initialize the content of the figure (RGB at each position)
-        self._display = numpy.zeros((self.N,self.N,3))
+        axis([0.0, 1.0, 0.0, 1.0])
+        gca().set_aspect('equal')
 
-        # position of the agent
-        self._display[self.x_position,self.y_position,0] = 1
-        self._display[self.reward_position[0],self.reward_position[1],1] = 1
+        # draw the goal area
+        goal = Circle((.8, .8), radius=.1, fill=False)
+        gca().add_patch(goal)
 
-        for x in range(self.N):
-            for y in range(self.N):
-                if self._is_wall(x_position=x,y_position=y):
-                    self._display[x,y,2] = 1.
-
-        self._visualization = imshow(self._display,interpolation='nearest',origin='lower')
+        line, = plot(0.1, 0.1, 'bo')
+        self.plot = line
 
     def _close_visualization(self):
         print "Press <return> to proceed..."
