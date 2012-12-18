@@ -83,7 +83,7 @@ class RL:
         for run in range(20):
             l = self._run_trial(visualize=True)
 
-    def learning_curve(self,log=False,filter=1.):
+    def learning_curve(self,log=False,filter=1., rewd = False):
         """
         Show a running average of the time it takes the agent to reach the target location.
 
@@ -109,13 +109,14 @@ class RL:
             ax1.set_ylabel('Latency', color='b')
             for tl in ax1.get_yticklabels():
                 tl.set_color('b')
-
-            ax2 = ax1.twinx()
-            ax2.set_ylim((-30, 15))
-            ax2.plot(self.rewards, 'r-', label='Reward')
-            ax2.set_ylabel('Reward', color='r')
-            for tl in ax2.get_yticklabels():
-                tl.set_color('r')
+			
+            if rewd:
+		        ax2 = ax1.twinx()
+		        ax2.set_ylim((-30, 15))
+		        ax2.plot(self.rewards, 'r-', label='Reward')
+		        ax2.set_ylabel('Reward', color='r')
+		        for tl in ax2.get_yticklabels():
+		            tl.set_color('r')
 
         else:
             semilogy(self.latencies)
@@ -126,23 +127,41 @@ class RL:
         Plot the direction with the highest Q-value for every position.
         Useful only for small gridworlds, otherwise the plot becomes messy.
         """
-        self.x_direction = numpy.zeros((self.N,self.N))
-        self.y_direction = numpy.zeros((self.N,self.N))
+        self.x_direction = zeros((self.N,self.N))
+        self.y_direction = zeros((self.N,self.N))
 
-        self.actions = argmax(self.Q[:,:,:],axis=2)
-        self.y_direction[self.actions==0] = 1.
-        self.y_direction[self.actions==1] = -1.
-        self.y_direction[self.actions==2] = 0.
-        self.y_direction[self.actions==3] = 0.
+        Q_val = zeros((self.N,self.N,8))
 
-        self.x_direction[self.actions==0] = 0.
-        self.x_direction[self.actions==1] = 0.
-        self.x_direction[self.actions==2] = 1.
+        for k in range(8):
+            for ii in range(self.N):
+                for jj in range(self.N):
+                    for i in range(self.N):
+                        for j in range(self.N):
+                            Q_val[ii,jj,k] += self.w[i,j,k] * self._basis_function(self._to_position(i), self._to_position(j), self._to_position(ii), self._to_position(jj))
+		
+        self.actions = argmax(Q_val[:,:,:],axis=2)
+        self.y_direction[self.actions==0] = 0.
+        self.y_direction[self.actions==1] = 1.
+        self.y_direction[self.actions==2] = 1.
+        self.y_direction[self.actions==3] = 1.
+        self.y_direction[self.actions==4] = 0.
+        self.y_direction[self.actions==5] = -1.
+        self.y_direction[self.actions==6] = -1.
+        self.y_direction[self.actions==7] = -1.
+
+        self.x_direction[self.actions==0] = 1.
+        self.x_direction[self.actions==1] = 1.
+        self.x_direction[self.actions==2] = 0.
         self.x_direction[self.actions==3] = -1.
+        self.x_direction[self.actions==4] = -1.
+        self.x_direction[self.actions==5] = -1.
+        self.x_direction[self.actions==6] = 0.
+        self.x_direction[self.actions==7] = 1.
+
 
         figure()
         quiver(self.x_direction,self.y_direction)
-        axis([-0.5, self.N - 0.5, -0.5, self.N - 0.5])
+        axis([-1, self.N + 1, -1 , self.N + 1])
 
     # def reset(self):
     #     """
