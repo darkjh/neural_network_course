@@ -40,7 +40,7 @@ class RL:
 
         # probability at which the agent chooses a random
         # action. This makes sure the agent explores the grid.
-        self.epsilon = 0.5
+        self.epsilon = 0.7
 
         # learning rate
         self.eta = 0.005
@@ -168,7 +168,7 @@ class RL:
 
         Ex. neuron (3, 4) has absolute coordinate (3/19, 4/19)
         """
-        return pos / 19
+        return pos / 19.0
 
     def _basis_function(self, j_x, j_y, x_pos=None, y_pos=None):
         """
@@ -181,7 +181,7 @@ class RL:
             x = x_pos
             y = y_pos
 
-        return exp(-((j_x - x)**2 + (j_y - y)**2) / (2 * self.sigma**2))
+        return exp(-((j_x - x)**2.0 + (j_y - y)**2.0) / (2.0 * self.sigma**2.0))
 
 
     def _init_run(self):
@@ -239,6 +239,9 @@ class RL:
         visual: If 'visualize' is 'True', show the time course of the trial graphically
         """
 
+        # clear eligibility trace for each trial
+        self.e = zeros((self.N, self.N, 8))
+
         # initial position of the agent
         self.x_pos = 0.1
         self.y_pos = 0.1
@@ -264,10 +267,10 @@ class RL:
             # if latency % 500 == 0:
             #     print str(latency)
 
-            # if latency >= self.iter_max:
-              #  break
+            if latency >= self.iter_max:
+               break
 
-	print "latency = "+str(latency)
+        print "latency = " + str(latency)
         if visualize:
             self._close_visualization()
 
