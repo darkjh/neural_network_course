@@ -101,9 +101,22 @@ class RL:
 
         if not log:
             fig = figure()
-            ax = fig.add_subplot(1,1,1)
-            ax.plot(self.latencies, 'b', lable='Latency')
-            ax.plot(self.rewards, 'r--', lable='Reward')
+            ax1 = fig.add_subplot(111)
+            ax1.set_ylim((-200, 11000))
+            ax1.plot(self.latencies, 'b', label='Latency')
+            ax1.set_xlabel('Trails')
+            # Make the y-axis label and tick labels match the line color.
+            ax1.set_ylabel('Latency', color='b')
+            for tl in ax1.get_yticklabels():
+                tl.set_color('b')
+
+            ax2 = ax1.twinx()
+            ax2.set_ylim((-30, 15))
+            ax2.plot(self.rewards, 'r-', label='Reward')
+            ax2.set_ylabel('Reward', color='r')
+            for tl in ax2.get_yticklabels():
+                tl.set_color('r')
+
         else:
             semilogy(self.latencies)
             semilogy(self.rewards)
