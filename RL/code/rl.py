@@ -40,7 +40,7 @@ class RL:
 
         # probability at which the agent chooses a random
         # action. This makes sure the agent explores the grid.
-        self.epsilon = 0.5
+        self.epsilon = 0.8
 
         # learning rate
         self.eta = 0.005
@@ -83,7 +83,7 @@ class RL:
         for run in range(20):
             l = self._run_trial(visualize=True)
 
-    def learning_curve(self,log=False,filter=1., rewd = False):
+    def learning_curve(self,log=False,filter=1., rewd = False, lmt = False):
         """
         Show a running average of the time it takes the agent to reach the target location.
 
@@ -102,7 +102,8 @@ class RL:
         if not log:
             fig = figure()
             ax1 = fig.add_subplot(111)
-            ax1.set_ylim((-200, 11000))
+            if lmt:
+                ax1.set_ylim((-200, 11000))
             ax1.plot(self.latencies, 'b', label='Latency')
             ax1.set_xlabel('Trails')
             # Make the y-axis label and tick labels match the line color.
@@ -117,7 +118,6 @@ class RL:
 		        ax2.set_ylabel('Reward', color='r')
 		        for tl in ax2.get_yticklabels():
 		            tl.set_color('r')
-
         else:
             semilogy(self.latencies)
             semilogy(self.rewards)
@@ -157,7 +157,6 @@ class RL:
         self.x_direction[self.actions==5] = -1.
         self.x_direction[self.actions==6] = 0.
         self.x_direction[self.actions==7] = 1.
-
 
         figure()
         quiver(self.x_direction,self.y_direction)
@@ -264,8 +263,8 @@ class RL:
             latency = self._run_trial()
 
             # decrease the epsilon value with every trail
-            # self.epsilon = self.epsilon * 0.85
-            # print "epsilon: " + str(self.epsilon)
+            self.epsilon = self.epsilon * 0.95
+
             self.latency_list.append(latency)
             self.reward_list.append(self.reward)
 
