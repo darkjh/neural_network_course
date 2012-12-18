@@ -85,7 +85,7 @@ class RL:
         Note that for the simulation, exploration is reduced -> self.epsilon=0.1
 
         """
-        for run in range(5):
+        for run in range(20):
             l = self._run_trial(visualize=True)
             print "step: " + str(l)
 
@@ -139,7 +139,7 @@ class RL:
 
         Instant amnesia -  the agent forgets everything he has learned before
         """
-        self.Q = numpy.random.rand(self.N,self.N,4)
+        self.Q = numpy.random.rand(self.N,self.N,8)
         self.latency_list = []
 
     def plot_Q(self):
@@ -196,7 +196,8 @@ class RL:
         # initialize the Q-values and the eligibility trace
         self.Q = zeros(8)
         self.Q_old = None
-        self.w = 0.01 * random.rand(self.N, self.N, 8) + 0.1
+        self.w = zeros((self.N, self.N, 8)) 
+#	self.w = 0.01 * random.rand(self.N, self.N, 8) + 0.1
         self.e = zeros((self.N, self.N, 8))
 
         # list that contains the times it took the agent to reach the target for all trials
@@ -223,6 +224,8 @@ class RL:
         for trial in range(N_trials):
             # run a trial and store the time it takes to the target
             latency = self._run_trial()
+#	    self.epsilon = self.epsilon * self.epsilon    
+#	    print "epsilon = " + str(self.epsilon)
             self.latency_list.append(latency)
 
         return array(self.latency_list)
@@ -257,33 +260,59 @@ class RL:
                 self._visualize_current_state()
 
             latency = latency + 1
-            if latency % 200 == 0:
+            if latency % 500 == 0:
                 print str(latency)
-            if latency >= self.iter_max:
-                break
+            # if latency >= self.iter_max:
+              #  break
 
+	
+	print "latency = "+str(latency)
         if visualize:
             self._close_visualization()
 
         return latency
+
+    def _update_state(self):
+        """
+        Update the state according to the old state and the current action.
+        """
+        # remember the old position of the agent
+        self.x_pos_old = self.x_pos
+        self.y_pos_old = self.y_pos
+
+        # update the agents position according to the action
+        if self.action in range(8):
+            self.x_pos = self.x_pos_old + self.step_length * cos(2*pi*self.action/8)
+            self.y_pos = self.y_pos_old + self.step_length * sin(2*pi*self.action/8)
+        else:
+            print "There must be a bug. This is not a valid action!"
+
+        # check if the agent has bumped into a wall.
+        if self._is_wall():
+            self.x_pos = self.x_pos_old
+            self.y_pos = self.y_pos_old
+            self._wall_touch = True
+        else:
+            self._wall_touch = False
 
     def _update_W(self):
         """
         Update the current estimate of the Q-values according to SARSA.
         """
         # update the eligibility trace
+        #self.e = self.gamma * self.lambda_eligibility * self.e
         self.e = self.lambda_eligibility * self.e
         for i in range(self.N):
             for j in range(self.N):
-                self.e[i, j, self.action_old] += \
-                  self._basis_function(self._to_position(i), self._to_position(j), \
-                                  self.x_pos_old, self.y_pos_old)
-
-        # update the W_j,a
-        if self.action_old != None and self.Q_old != None:
-            TD = self._reward() + self.gamma*self.Q[self.action] - self.Q_old[self.action_old]
-            self.w[:, :, self.action_old] += self.eta * TD * self.e[:, :, self.action_old]
-
+                self.e[i, j, self.action_old] += self._basis_function(self._to_position(i), self._to_position(j), self.x_pos_old, self.y_pos_old)
+	        # update the W_j,a
+	        if self.action_old != None and self.Q_old != None:
+        	    TD = self._reward() + self.gamma*self.Q[self.action] - self.Q_old[self.action_old]
+	            self.w[i, j, self.action_old] += self.eta * TD * self.e[i, j, self.action_old]
+#		    if TD != 0:
+#			print "weight = "+str(self.w[i, j, self.action_old])
+		else :
+		    print "error condition"
 
     def _choose_action(self):
         """
@@ -326,30 +355,7 @@ class RL:
             return self.reward_at_wall
         else:
             return 0.
-
-    def _update_state(self):
-        """
-        Update the state according to the old state and the current action.
-        """
-        # remember the old position of the agent
-        self.x_pos_old = self.x_pos
-        self.y_pos_old = self.y_pos
-
-        # update the agents position according to the action
-        if self.action in range(8):
-            self.x_pos = self.x_pos_old + self.step_length * cos(2*pi*self.action/8)
-            self.y_pos = self.y_pos_old + self.step_length * sin(2*pi*self.action/8)
-        else:
-            print "There must be a bug. This is not a valid action!"
-
-        # check if the agent has bumped into a wall.
-        if self._is_wall():
-            self.x_pos = self.x_pos_old
-            self.y_pos = self.y_pos_old
-            self._wall_touch = True
-        else:
-            self._wall_touch = False
-
+    
     def _is_wall(self,x_position=None,y_position=None):
         """
         This function returns, if the given position is within an obstacle
