@@ -16,7 +16,7 @@ class Gridworld:
     navigation_map()     : Plot the movement direction with the highest Q-value for all positions.
     """
 
-    def __init__(self,N,reward_position=(0,0),obstacle=False, lambda_eligibility=0.):
+    def __init__(self,N,reward_position=(2,2),obstacle=False, lambda_eligibility=0.95):
         """
         Creates a quadratic NxN gridworld.
 
@@ -76,21 +76,10 @@ class Gridworld:
                 red   - the position of the agent
                 blue  - walls/obstacles
                 green - the reward position
-
-        Note that for the simulation, exploration is reduced -> self.epsilon=0.1
-
         """
-        # store the old exploration/exploitation parameter
-        epsilon = self.epsilon
+        l = self._run_trial(visualize=True)
+        print "Step: " + str(l)
 
-        # favor exploitation, i.e. use the action with the
-        # highest Q-value most of the time
-        self.epsilon = 0.1
-
-        self._run_trial(visualize=True)
-
-        # restore the old exploration/exploitation factor
-        self.epsilon = epsilon
 
     def learning_curve(self,log=False,filter=1.):
         """
@@ -144,6 +133,7 @@ class Gridworld:
         """
         self.Q = numpy.random.rand(self.N,self.N,4)
         self.latency_list = []
+        self.epsilon = 0.5
 
     def plot_Q(self):
         """
@@ -204,6 +194,7 @@ class Gridworld:
         """
         for trial in range(N_trials):
             # run a trial and store the time it takes to the target
+            self.epsilon *= 0.95
             latency = self._run_trial()
             self.latency_list.append(latency)
 
@@ -218,11 +209,8 @@ class Gridworld:
         visual: If 'visualize' is 'True', show the time course of the trial graphically
         """
         # choose the initial position and make sure that its not in the wall
-        while True:
-            self.x_position = numpy.random.randint(self.N)
-            self.y_position = numpy.random.randint(self.N)
-            if not self._is_wall(self.x_position,self.y_position):
-                break
+        self.x_position = 18
+        self.y_position = 18
 
         # initialize the latency (time to reach the target) for this trial
         latency = 0.
@@ -378,7 +366,7 @@ class Gridworld:
         draw()
 
         # and wait a little while to control the speed of the presentation
-        sleep(0.2)
+        sleep(0.01)
 
     def _init_visualization(self):
 
