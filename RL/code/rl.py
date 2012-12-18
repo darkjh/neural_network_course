@@ -75,37 +75,33 @@ class RL:
     def visualize_trial(self):
         """
         Run a single trial with a graphical display that shows in
-                red   - the position of the agent
-                blue  - walls/obstacles
-                green - the reward position
-
-        Note that for the simulation, exploration is reduced -> self.epsilon=0.1
-
+                blue dot  - agent
+                circle    - the reward area
         """
         for run in range(20):
             l = self._run_trial(visualize=True)
             print "step: " + str(l)
 
-    # def learning_curve(self,log=False,filter=1.):
-    #     """
-    #     Show a running average of the time it takes the agent to reach the target location.
+    def learning_curve(self,log=False,filter=1.):
+        """
+        Show a running average of the time it takes the agent to reach the target location.
 
-    #     Options:
-    #     filter=1. : timescale of the running average.
-    #     log    : Logarithmic y axis.
-    #     """
-    #     figure()
-    #     xlabel('trials')
-    #     ylabel('time to reach target')
-    #     latencies = array(self.latency_list)
-    #     # calculate a running average over the latencies with a averaging time 'filter'
-    #     for i in range(1,latencies.shape[0]):
-    #         latencies[i] = latencies[i-1] + (latencies[i] - latencies[i-1])/float(filter)
+        Options:
+        filter=1. : timescale of the running average.
+        log    : Logarithmic y axis.
+        """
+        figure()
+        xlabel('trials')
+        ylabel('time to reach target')
+        latencies = array(self.latency_list)
+        # calculate a running average over the latencies with a averaging time 'filter'
+        for i in range(1,latencies.shape[0]):
+            latencies[i] = latencies[i-1] + (latencies[i] - latencies[i-1])/float(filter)
 
-    #     if not log:
-    #         plot(self.latencies)
-    #     else:
-    #         semilogy(self.latencies)
+        if not log:
+            plot(self.latencies)
+        else:
+            semilogy(self.latencies)
 
     # def navigation_map(self):
     #     """
@@ -195,6 +191,7 @@ class RL:
         # initialize the Q-values and the eligibility trace
         self.Q = zeros(8)
         self.Q_old = None
+        self.basis = zeros((20, 20))
 
         # init all w and e to 0
         self.w = zeros((self.N, self.N, 8))
@@ -227,8 +224,8 @@ class RL:
             latency = self._run_trial()
 
             # decrease the epsilon value with every trail
-            # self.epsilon = self.epsilon * self.epsilon
-            # print "epsilon = " + str(self.epsilon)
+            self.epsilon = self.epsilon * 0.85
+            print "epsilon: " + str(self.epsilon)
             self.latency_list.append(latency)
 
         return array(self.latency_list)
@@ -264,8 +261,8 @@ class RL:
 
             latency = latency + 1
 
-            if latency % 500 == 0:
-                print str(latency)
+            # if latency % 500 == 0:
+            #     print str(latency)
 
             # if latency >= self.iter_max:
               #  break
@@ -307,17 +304,23 @@ class RL:
         self.e = self.lambda_eligibility * self.e
         TD = self._reward() + self.gamma*self.Q[self.action] - self.Q_old[self.action_old]
 
-        for i in range(self.N):
-            for j in range(self.N):
-                # update the eligibility trace
-                self.e[i, j, self.action_old] += \
-                  self._basis_function(self._to_position(i), self._to_position(j), \
-                                       self.x_pos_old, self.y_pos_old)
-                # update the W_j,a
-                if self.action_old != None and self.Q_old != None:
-                    self.w[i, j, self.action_old] += self.eta * TD * self.e[i, j, self.action_old]
-                else :
-                    print "error condition"
+        self.e[:,:,self.action_old] = self.e[:,:,self.action_old].reshape(20,20) + self.basis
+        if self.action_old != None and self.Q_old != None:
+            self.w[:,:,self.action_old] += self.eta * TD * self.e[:,:,self.action_old]
+        else:
+            print "error condition"
+
+        # for i in range(self.N):
+        #     for j in range(self.N):
+        #         # update the eligibility trace
+        #         self.e[i, j, self.action_old] += \
+        #           self._basis_function(self._to_position(i), self._to_position(j), \
+        #                                self.x_pos_old, self.y_pos_old)
+        #         # update the W_j,a
+        #         if self.action_old != None and self.Q_old != None:
+        #             self.w[i, j, self.action_old] += self.eta * TD * self.e[i, j, self.action_old]
+        #         else :
+        #             print "error condition"
 
     def _choose_action(self):
         """
@@ -327,15 +330,25 @@ class RL:
         a random action is chosen.
         """
         self.action_old = self.action
-        # calculate Q value for each action
+
         self.Q_old = self.Q
         self.Q = zeros(8)
-        for a in range(8):
-            sum = 0.0
-            for x in range(self.N):
-                for y in range(self.N):
-                    sum += self._basis_function(self._to_position(x), self._to_position(y)) * self.w[x, y, a]
-            self.Q[a] = sum
+        self.basis_old = self.basis
+
+        # calculate basis function result for the agent's position
+        for i in range(self.N):
+            for j in range(self.N):
+                self.basis[i,j] = self._basis_function(self._to_position(i), self._to_position(j))
+
+        # calculate Q value for each action
+        self.Q = dot(self.basis.reshape(1,400), self.w.reshape(400,8)).reshape(8)
+
+        # for a in range(8):
+        #     sum = 0.0
+        #     for x in range(self.N):
+        #         for y in range(self.N):
+        #             sum += self._basis_function(self._to_position(x), self._to_position(y)) * self.w[x, y, a]
+        #     self.Q[a] = sum
 
         if random.rand() < self.epsilon:
             self.action = random.randint(8)
