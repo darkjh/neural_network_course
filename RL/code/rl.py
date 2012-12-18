@@ -22,9 +22,6 @@ class RL:
 
         Mandatory argument:
         N: size of the gridworld
-
-        Optional arguments:
-        obstacle = True:  Add a wall to the gridworld.
         """
 
         # input neuron size
@@ -89,80 +86,80 @@ class RL:
             l = self._run_trial(visualize=True)
             print "step: " + str(l)
 
-    def learning_curve(self,log=False,filter=1.):
-        """
-        Show a running average of the time it takes the agent to reach the target location.
+    # def learning_curve(self,log=False,filter=1.):
+    #     """
+    #     Show a running average of the time it takes the agent to reach the target location.
 
-        Options:
-        filter=1. : timescale of the running average.
-        log    : Logarithmic y axis.
-        """
-        figure()
-        xlabel('trials')
-        ylabel('time to reach target')
-        latencies = array(self.latency_list)
-        # calculate a running average over the latencies with a averaging time 'filter'
-        for i in range(1,latencies.shape[0]):
-            latencies[i] = latencies[i-1] + (latencies[i] - latencies[i-1])/float(filter)
+    #     Options:
+    #     filter=1. : timescale of the running average.
+    #     log    : Logarithmic y axis.
+    #     """
+    #     figure()
+    #     xlabel('trials')
+    #     ylabel('time to reach target')
+    #     latencies = array(self.latency_list)
+    #     # calculate a running average over the latencies with a averaging time 'filter'
+    #     for i in range(1,latencies.shape[0]):
+    #         latencies[i] = latencies[i-1] + (latencies[i] - latencies[i-1])/float(filter)
 
-        if not log:
-            plot(self.latencies)
-        else:
-            semilogy(self.latencies)
+    #     if not log:
+    #         plot(self.latencies)
+    #     else:
+    #         semilogy(self.latencies)
 
-    def navigation_map(self):
-        """
-        Plot the direction with the highest Q-value for every position.
-        Useful only for small gridworlds, otherwise the plot becomes messy.
-        """
-        self.x_direction = numpy.zeros((self.N,self.N))
-        self.y_direction = numpy.zeros((self.N,self.N))
+    # def navigation_map(self):
+    #     """
+    #     Plot the direction with the highest Q-value for every position.
+    #     Useful only for small gridworlds, otherwise the plot becomes messy.
+    #     """
+    #     self.x_direction = numpy.zeros((self.N,self.N))
+    #     self.y_direction = numpy.zeros((self.N,self.N))
 
-        self.actions = argmax(self.Q[:,:,:],axis=2)
-        self.y_direction[self.actions==0] = 1.
-        self.y_direction[self.actions==1] = -1.
-        self.y_direction[self.actions==2] = 0.
-        self.y_direction[self.actions==3] = 0.
+    #     self.actions = argmax(self.Q[:,:,:],axis=2)
+    #     self.y_direction[self.actions==0] = 1.
+    #     self.y_direction[self.actions==1] = -1.
+    #     self.y_direction[self.actions==2] = 0.
+    #     self.y_direction[self.actions==3] = 0.
 
-        self.x_direction[self.actions==0] = 0.
-        self.x_direction[self.actions==1] = 0.
-        self.x_direction[self.actions==2] = 1.
-        self.x_direction[self.actions==3] = -1.
+    #     self.x_direction[self.actions==0] = 0.
+    #     self.x_direction[self.actions==1] = 0.
+    #     self.x_direction[self.actions==2] = 1.
+    #     self.x_direction[self.actions==3] = -1.
 
-        figure()
-        quiver(self.x_direction,self.y_direction)
-        axis([-0.5, self.N - 0.5, -0.5, self.N - 0.5])
+    #     figure()
+    #     quiver(self.x_direction,self.y_direction)
+    #     axis([-0.5, self.N - 0.5, -0.5, self.N - 0.5])
 
-    def reset(self):
-        """
-        Reset the Q-values (and the latency_list).
+    # def reset(self):
+    #     """
+    #     Reset the Q-values (and the latency_list).
 
-        Instant amnesia -  the agent forgets everything he has learned before
-        """
-        self.Q = numpy.random.rand(self.N,self.N,8)
-        self.latency_list = []
+    #     Instant amnesia -  the agent forgets everything he has learned before
+    #     """
+    #     self.Q = numpy.random.rand(self.N,self.N,8)
+    #     self.latency_list = []
 
-    def plot_Q(self):
-        """
-        Plot the dependence of the Q-values on position.
-        The figure consists of 4 subgraphs, each of which shows the Q-values
-        colorcoded for one of the actions.
-        """
-        figure()
-        for i in range(4):
-            subplot(2,2,i+1)
-            imshow(self.Q[:,:,i],interpolation='nearest',origin='lower',vmax=1.1)
-            if i==0:
-                title('Up')
-            elif i==1:
-                title('Down')
-            elif i==2:
-                title('Right')
-            else:
-                title('Left')
+    # def plot_Q(self):
+    #     """
+    #     Plot the dependence of the Q-values on position.
+    #     The figure consists of 4 subgraphs, each of which shows the Q-values
+    #     colorcoded for one of the actions.
+    #     """
+    #     figure()
+    #     for i in range(4):
+    #         subplot(2,2,i+1)
+    #         imshow(self.Q[:,:,i],interpolation='nearest',origin='lower',vmax=1.1)
+    #         if i==0:
+    #             title('Up')
+    #         elif i==1:
+    #             title('Down')
+    #         elif i==2:
+    #             title('Right')
+    #         else:
+    #             title('Left')
 
-            colorbar()
-        draw()
+    #         colorbar()
+    #     draw()
 
     ###############################################################################################
     # The remainder of methods is for internal use and only relevant to those of you
@@ -171,7 +168,9 @@ class RL:
 
     def _to_position(self, pos):
         """
-        Convert the index of input neuron into absolute coordinate on state space
+        Convert the index number of input neuron into absolute coordinate on state space
+
+        Ex. neuron (3, 4) has absolute coordinate (3/19, 4/19)
         """
         return pos / 19
 
@@ -196,8 +195,10 @@ class RL:
         # initialize the Q-values and the eligibility trace
         self.Q = zeros(8)
         self.Q_old = None
-        self.w = zeros((self.N, self.N, 8)) 
-#	self.w = 0.01 * random.rand(self.N, self.N, 8) + 0.1
+
+        # init all w and e to 0
+        self.w = zeros((self.N, self.N, 8))
+        # self.w = 0.01 * random.rand(self.N, self.N, 8) + 0.1
         self.e = zeros((self.N, self.N, 8))
 
         # list that contains the times it took the agent to reach the target for all trials
@@ -224,8 +225,10 @@ class RL:
         for trial in range(N_trials):
             # run a trial and store the time it takes to the target
             latency = self._run_trial()
-#	    self.epsilon = self.epsilon * self.epsilon    
-#	    print "epsilon = " + str(self.epsilon)
+
+            # decrease the epsilon value with every trail
+            # self.epsilon = self.epsilon * self.epsilon
+            # print "epsilon = " + str(self.epsilon)
             self.latency_list.append(latency)
 
         return array(self.latency_list)
@@ -260,12 +263,13 @@ class RL:
                 self._visualize_current_state()
 
             latency = latency + 1
+
             if latency % 500 == 0:
                 print str(latency)
+
             # if latency >= self.iter_max:
               #  break
 
-	
 	print "latency = "+str(latency)
         if visualize:
             self._close_visualization()
@@ -299,20 +303,21 @@ class RL:
         """
         Update the current estimate of the Q-values according to SARSA.
         """
-        # update the eligibility trace
-        #self.e = self.gamma * self.lambda_eligibility * self.e
+
         self.e = self.lambda_eligibility * self.e
+        TD = self._reward() + self.gamma*self.Q[self.action] - self.Q_old[self.action_old]
+
         for i in range(self.N):
             for j in range(self.N):
-                self.e[i, j, self.action_old] += self._basis_function(self._to_position(i), self._to_position(j), self.x_pos_old, self.y_pos_old)
-	        # update the W_j,a
-	        if self.action_old != None and self.Q_old != None:
-        	    TD = self._reward() + self.gamma*self.Q[self.action] - self.Q_old[self.action_old]
-	            self.w[i, j, self.action_old] += self.eta * TD * self.e[i, j, self.action_old]
-#		    if TD != 0:
-#			print "weight = "+str(self.w[i, j, self.action_old])
-		else :
-		    print "error condition"
+                # update the eligibility trace
+                self.e[i, j, self.action_old] += \
+                  self._basis_function(self._to_position(i), self._to_position(j), \
+                                       self.x_pos_old, self.y_pos_old)
+                # update the W_j,a
+                if self.action_old != None and self.Q_old != None:
+                    self.w[i, j, self.action_old] += self.eta * TD * self.e[i, j, self.action_old]
+                else :
+                    print "error condition"
 
     def _choose_action(self):
         """
@@ -355,7 +360,7 @@ class RL:
             return self.reward_at_wall
         else:
             return 0.
-    
+
     def _is_wall(self,x_position=None,y_position=None):
         """
         This function returns, if the given position is within an obstacle
@@ -378,10 +383,7 @@ class RL:
 
     def _visualize_current_state(self):
         """
-        Show the gridworld. The squares are colored in
-        red - the position of the agent - turns yellow when reaching the target or running into a wall
-        blue - walls
-        green - reward
+        Show the experiment, the agent is the blue dot
         """
         self.plot.set_xdata(self.x_pos)
         self.plot.set_ydata(self.y_pos)
@@ -389,12 +391,14 @@ class RL:
         draw()
 
         # and wait a little while to control the speed of the presentation
-        sleep(0.01)
+        # sleep(0.01)
 
     def _init_visualization(self):
 
         # turn on interactive mode
         ion()
+
+        # set the axis to be unit square and equal
         axis([0.0, 1.0, 0.0, 1.0])
         gca().set_aspect('equal')
 
