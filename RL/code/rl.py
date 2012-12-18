@@ -40,7 +40,7 @@ class RL:
 
         # probability at which the agent chooses a random
         # action. This makes sure the agent explores the grid.
-        self.epsilon = 0.5
+        self.epsilon = 0.7
 
         # learning rate
         self.eta = 0.005
@@ -80,7 +80,6 @@ class RL:
         """
         for run in range(20):
             l = self._run_trial(visualize=True)
-            print "step: " + str(l)
 
     def learning_curve(self,log=False,filter=1.):
         """
@@ -103,28 +102,28 @@ class RL:
         else:
             semilogy(self.latencies)
 
-    # def navigation_map(self):
-    #     """
-    #     Plot the direction with the highest Q-value for every position.
-    #     Useful only for small gridworlds, otherwise the plot becomes messy.
-    #     """
-    #     self.x_direction = numpy.zeros((self.N,self.N))
-    #     self.y_direction = numpy.zeros((self.N,self.N))
+    def navigation_map(self):
+        """
+        Plot the direction with the highest Q-value for every position.
+        Useful only for small gridworlds, otherwise the plot becomes messy.
+        """
+        self.x_direction = numpy.zeros((self.N,self.N))
+        self.y_direction = numpy.zeros((self.N,self.N))
 
-    #     self.actions = argmax(self.Q[:,:,:],axis=2)
-    #     self.y_direction[self.actions==0] = 1.
-    #     self.y_direction[self.actions==1] = -1.
-    #     self.y_direction[self.actions==2] = 0.
-    #     self.y_direction[self.actions==3] = 0.
+        self.actions = argmax(self.Q[:,:,:],axis=2)
+        self.y_direction[self.actions==0] = 1.
+        self.y_direction[self.actions==1] = -1.
+        self.y_direction[self.actions==2] = 0.
+        self.y_direction[self.actions==3] = 0.
 
-    #     self.x_direction[self.actions==0] = 0.
-    #     self.x_direction[self.actions==1] = 0.
-    #     self.x_direction[self.actions==2] = 1.
-    #     self.x_direction[self.actions==3] = -1.
+        self.x_direction[self.actions==0] = 0.
+        self.x_direction[self.actions==1] = 0.
+        self.x_direction[self.actions==2] = 1.
+        self.x_direction[self.actions==3] = -1.
 
-    #     figure()
-    #     quiver(self.x_direction,self.y_direction)
-    #     axis([-0.5, self.N - 0.5, -0.5, self.N - 0.5])
+        figure()
+        quiver(self.x_direction,self.y_direction)
+        axis([-0.5, self.N - 0.5, -0.5, self.N - 0.5])
 
     # def reset(self):
     #     """
@@ -168,7 +167,7 @@ class RL:
 
         Ex. neuron (3, 4) has absolute coordinate (3/19, 4/19)
         """
-        return pos / 19
+        return pos / 19.0
 
     def _basis_function(self, j_x, j_y, x_pos=None, y_pos=None):
         """
@@ -181,7 +180,7 @@ class RL:
             x = x_pos
             y = y_pos
 
-        return exp(-((j_x - x)**2 + (j_y - y)**2) / (2 * self.sigma**2))
+        return exp(-((j_x - x)**2.0 + (j_y - y)**2.0) / (2.0 * self.sigma**2.0))
 
 
     def _init_run(self):
@@ -239,6 +238,9 @@ class RL:
         visual: If 'visualize' is 'True', show the time course of the trial graphically
         """
 
+        # clear eligibility trace for each trial
+        self.e = zeros((self.N, self.N, 8))
+
         # initial position of the agent
         self.x_pos = 0.1
         self.y_pos = 0.1
@@ -264,10 +266,10 @@ class RL:
             # if latency % 500 == 0:
             #     print str(latency)
 
-            # if latency >= self.iter_max:
-              #  break
+            if latency >= self.iter_max:
+               break
 
-	print "latency = "+str(latency)
+        print "latency = " + str(latency)
         if visualize:
             self._close_visualization()
 
@@ -304,9 +306,9 @@ class RL:
         self.e = self.lambda_eligibility * self.e
         TD = self._reward() + self.gamma*self.Q[self.action] - self.Q_old[self.action_old]
 
-        self.e[:,:,self.action_old] = self.e[:,:,self.action_old].reshape(20,20) + self.basis
+        self.e[:,:,self.action_old] = self.e[:,:,self.action_old].reshape(20,20) + self.basis_old
         if self.action_old != None and self.Q_old != None:
-            self.w[:,:,self.action_old] += self.eta * TD * self.e[:,:,self.action_old]
+            self.w += self.eta * TD * self.e
         else:
             print "error condition"
 
@@ -342,13 +344,6 @@ class RL:
 
         # calculate Q value for each action
         self.Q = dot(self.basis.reshape(1,400), self.w.reshape(400,8)).reshape(8)
-
-        # for a in range(8):
-        #     sum = 0.0
-        #     for x in range(self.N):
-        #         for y in range(self.N):
-        #             sum += self._basis_function(self._to_position(x), self._to_position(y)) * self.w[x, y, a]
-        #     self.Q[a] = sum
 
         if random.rand() < self.epsilon:
             self.action = random.randint(8)
