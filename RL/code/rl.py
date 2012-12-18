@@ -40,7 +40,7 @@ class RL:
 
         # probability at which the agent chooses a random
         # action. This makes sure the agent explores the grid.
-        self.epsilon = 0.7
+        self.epsilon = 0.5
 
         # learning rate
         self.eta = 0.005
@@ -66,11 +66,13 @@ class RL:
 
     def run(self,N_trials=10,N_runs=1):
         self.latencies = zeros(N_trials)
+        self.rewards = zeros(N_trials)
 
         for run in range(N_runs):
             self._init_run()
             latencies = self._learn_run(N_trials=N_trials)
             self.latencies += latencies/N_runs
+            self.rewards += array(self.reward_list)/N_runs
 
     def visualize_trial(self):
         """
@@ -98,9 +100,13 @@ class RL:
             latencies[i] = latencies[i-1] + (latencies[i] - latencies[i-1])/float(filter)
 
         if not log:
-            plot(self.latencies)
+            fig = figure()
+            ax = fig.add_subplot(1,1,1)
+            ax.plot(self.latencies, 'b', lable='Latency')
+            ax.plot(self.rewards, 'r--', lable='Reward')
         else:
             semilogy(self.latencies)
+            semilogy(self.rewards)
 
     def navigation_map(self):
         """
@@ -193,18 +199,21 @@ class RL:
         self.basis = zeros((20, 20))
 
         # init all w and e to 0
-        self.w = zeros((self.N, self.N, 8))
-        # self.w = 0.01 * random.rand(self.N, self.N, 8) + 0.1
+        #self.w = zeros((self.N, self.N, 8))
+        self.w = 0.001 * random.rand(self.N, self.N, 8)
         self.e = zeros((self.N, self.N, 8))
 
         # list that contains the times it took the agent to reach the target for all trials
         # serves to track the progress of learning
+        # also a reward list
         self.latency_list = []
+        self.reward_list = []
 
         # initialize the state and action variables
         self.x_pos = None
         self.y_pos = None
         self.action = None
+        self.reward = None
 
     def _learn_run(self,N_trials=10):
         """
@@ -223,9 +232,10 @@ class RL:
             latency = self._run_trial()
 
             # decrease the epsilon value with every trail
-            self.epsilon = self.epsilon * 0.85
-            print "epsilon: " + str(self.epsilon)
+            # self.epsilon = self.epsilon * 0.85
+            # print "epsilon: " + str(self.epsilon)
             self.latency_list.append(latency)
+            self.reward_list.append(self.reward)
 
         return array(self.latency_list)
 
@@ -245,8 +255,9 @@ class RL:
         self.x_pos = 0.1
         self.y_pos = 0.1
 
-        # initialize the latency (time to reach the target) for this trial
+        # initialize the latency and reward
         latency = 0.
+        self.reward = 0.
 
         # start the visualization, if asked for
         if visualize:
@@ -304,7 +315,9 @@ class RL:
         """
 
         self.e = self.lambda_eligibility * self.e
-        TD = self._reward() + self.gamma*self.Q[self.action] - self.Q_old[self.action_old]
+        r = self._reward()
+        self.reward += r
+        TD = r + self.gamma*self.Q[self.action] - self.Q_old[self.action_old]
 
         self.e[:,:,self.action_old] = self.e[:,:,self.action_old].reshape(20,20) + self.basis_old
         if self.action_old != None and self.Q_old != None:
