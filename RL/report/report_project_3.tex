@@ -95,14 +95,20 @@ $\epsilon$ = 0.4 $\Rightarrow$ 77  steps
 
 $\epsilon$ = 0.2 $\Rightarrow$ 79 steps
 
-The result is exactly what we expected. When $\epsilon$ equals to 0.8, the agent quickly finish the first trail (2000 steps average), but it takes more steps in the end, due to the more random choice of the next step. For the small ones, it takes 9000 steps to get to the goal at the begining, but the final averge step is less.
+The result is exactly what we expected. When $\epsilon$ equals to 0.8, the agent quickly finish the first trail (2000 steps average), but it takes more steps in the end. For the small ones, it takes 9000 steps to get to the goal at the begining, but the final averge step is less.
+
+If we start with a big $\epsilon$ and decrease it after each trial, we will get the learning curve as below:
+
+\\ figure
+
+It takes 1800 steps to finish the first trial, and the last 10 average steps is about 50. So, this approach makes the learning more efficient and the result more significant.
 
 \section{Navigation Map}
 
-
-The naviagation map is shown as below: 
+The naviagation maps for different stages of learning are shown as below, where the arrows mean the preferred direction (with the highest Q value) at each place field center.
 
 //figure
 
+Figure 6,7,8 shows the progress of the navigation during the traing. And the figure 9 is the ideal navigation map which is also one of our training result with the decrease $\epsilon$ approach.
 
 \end{document}
