@@ -1,4 +1,4 @@
-\documentclass[a4paper, 12pt]{article}
+\documentclass[a4paper, 11pt]{article}
 % Options possibles : 10pt, 11pt, 12pt (taille de la fonte)
 % oneside, twoside (recto simple, recto-verso)
 % draft, final (stade de développement)
@@ -124,7 +124,12 @@ The result is exactly what we expected. When $\epsilon$ equals to 0.8, the agent
 
 If we start with a big $\epsilon$ and decrease it after each trial, we will get the learning curve as below:
 
-\\ figure
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.35]{../figure/decEps.jpeg}
+\caption{Learning curve with decreasing $\epsilon$}
+\end{figure}
+
 
 It takes 1800 steps to finish the first trial, and the last 10 average steps is about 50. So, this approach makes the learning more efficient and the result more significant.
 
