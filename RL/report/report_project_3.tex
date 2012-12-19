@@ -25,7 +25,7 @@
 \maketitle
 \section{Introduction}
 
-In this project we implement a reinforcement learning experiment with
+In this project we implemented a reinforcement learning experiment with
 continuous state space and a neural network model. Unlike the discrete
 state learning experiments, in a continuous state space we can't
 enumerate over all possible states, that makes the classic Q-learning
@@ -36,7 +36,7 @@ the other side, we have the action cells, each represents an possible
 action of the agent in the experiment. Given this set up, the expected
 reward for a particular point in the state space is just the dot
 product of the point's activation of all place cells and the weight
-vector between the place cells and the action cells. So essentially we
+vector of a place-action pair. So essentially we
 use the classic SARSA algorithm's framework, but what we update is the
 weight vector, and the Q-values are computed dynamically for choosing
 an action.
@@ -79,11 +79,11 @@ per trial converges to 10, which means it pursues directly the goal
 area without hitting too much the wall.
 
 \section{Exploration \& Exploitation}
-The parameter $\epsilon$ controls the balance between exploration and exploitation. When $\epsilon$ is big, the agent has more possibilities to take a random step in order to explore more place in the environement, while small $\epsilon$ makes the agent more likely to take a step according to the $\epsilon$-greedy policy. The implementation of the algorithm SARAR depends on the choice of the $\epsilon$, we have to make a tradeoff. If the $\epsilon$ is too big, the agent will seldom take a step with the greedy policy, the whole learning process is more stochastic, so the learning result is not significant. However, if $\epsilon$ is too small, the agent will be more likely to exploit the state around where it is, because the weights are not largely updated, the agent sometimes will travel around several same states, sometimes even not get to the goal within a given time step limit.
+The parameter $\epsilon$ controls the balance between exploration and exploitation. When $\epsilon$ is big, the agent has more possibilities to take a random step in order to explore more place in the environement, while small $\epsilon$ makes the agent more likely to take a step according to the $\epsilon$-greedy policy. The implementation of the SARSA algorithm depends on the choice of the $\epsilon$, we have to make a tradeoff. If the $\epsilon$ is too big, the agent will seldom take a step with the greedy policy, the whole learning process is more stochastic, so the learning result is not significant. However, if $\epsilon$ is too small, the agent will be more likely to exploit the state around where it is, because the weights are not largely updated, the agent sometimes will travel around several same states, sometimes even not get to the goal within a given time step limit.
 
 The best solution is to start with a big $\epsilon$ so as to explore the space as widely as possible. The $\epsilon$ decreases after each trails Thus, the first several trials with big $\epsilon$ will collect enough information about the weights (Q values), and the later trials with small $\epsilon$ can take a good use of these information via the greedy policy which makes the agent more likely to get into the goal area.
 
-The learning curves and the average latency of the last 10 trails with $\epsilon$=0.8, 0.6, 0.4, 0.2 are shown as below:
+The learning curves and the average latency of the last 10 trails with $\epsilon$=0.8, 0.6, 0.4, 0.2 are shown in figure-2,3,4,5:
 
 \begin{figure}
   \centering
@@ -158,6 +158,6 @@ The naviagation maps for different stages of learning are shown as below, where 
   \end{minipage}
 \end{figure}
 
-Figure 6,7,8 shows the progress of the navigation during the traing. And the figure 9 is the ideal navigation map which is also one of our training result with the decrease $\epsilon$ approach.
+Figure 7,8,9 shows the progress of the navigation during the traing. And the figure 10 is the ideal navigation map which is also one of our training result with the decrease $\epsilon$ approach.
 
 \end{document}
