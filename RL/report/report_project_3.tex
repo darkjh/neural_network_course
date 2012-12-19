@@ -85,7 +85,32 @@ The best solution is to start with a big $\epsilon$ so as to explore the space a
 
 The learning curves and the average latency of the last 10 trails with $\epsilon$=0.8, 0.6, 0.4, 0.2 are shown as below:
 
-\\figure
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{0.5\textwidth}
+    \centering
+    \includegraphics[scale=0.3]{../figure/eps2.jpeg}
+      \caption{$\epsilon = 0.2$}
+  \end{minipage}%
+  \begin{minipage}[c]{0.5\textwidth}
+    \centering
+    \includegraphics[scale=0.3]{../figure/eps4.jpeg}
+      \caption{$\epsilon = 0.4$}
+    \end{minipage}
+    \\
+  \centering
+  \begin{minipage}[c]{0.5\textwidth}
+    \centering
+    \includegraphics[scale=0.3]{../figure/eps6.jpeg}
+  \caption{$\epsilon = 0.6$}
+  \end{minipage}%
+  \begin{minipage}[c]{0.5\textwidth}
+    \centering
+    \includegraphics[scale=0.3]{../figure/eps8.jpeg}
+  \caption{$\epsilon = 0.8$}
+  \end{minipage}
+\end{figure}
+
 
 $\epsilon$ = 0.8 $\Rightarrow$ 219 steps
 
@@ -107,7 +132,31 @@ It takes 1800 steps to finish the first trial, and the last 10 average steps is 
 
 The naviagation maps for different stages of learning are shown as below, where the arrows mean the preferred direction (with the highest Q value) at each place field center.
 
-//figure
+\begin{figure}
+  \centering
+  \begin{minipage}[c]{0.5\textwidth}
+    \centering
+    \includegraphics[scale=0.3]{../figure/navMp10.jpeg}
+      \caption{Navigation map after 10 steps}
+  \end{minipage}%
+  \begin{minipage}[c]{0.5\textwidth}
+    \centering
+    \includegraphics[scale=0.3]{../figure/navMp30.jpeg}
+      \caption{Navigation map after 30 steps}
+    \end{minipage}
+    \\
+  \centering
+  \begin{minipage}[c]{0.5\textwidth}
+    \centering
+    \includegraphics[scale=0.3]{../figure/navMp50.jpeg}
+  \caption{Navigation map after 50 steps}
+  \end{minipage}%
+  \begin{minipage}[c]{0.5\textwidth}
+    \centering
+    \includegraphics[scale=0.3]{../figure/navMap.jpeg}
+  \caption{Best navigation map}
+  \end{minipage}
+\end{figure}
 
 Figure 6,7,8 shows the progress of the navigation during the traing. And the figure 9 is the ideal navigation map which is also one of our training result with the decrease $\epsilon$ approach.
 
